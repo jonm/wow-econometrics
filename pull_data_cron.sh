@@ -49,7 +49,7 @@ exlock_now || exit 1
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 cd `dirname $0`
-./pull_auction_data.py 2>&1 | logger -p user.notice -t wowecon
+./pull_auction_data.py -n 1 2>&1 | logger -p user.notice -t wowecon
 
 
 

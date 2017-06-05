@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import argparse
 import os
 import sys
 import time
@@ -50,6 +51,7 @@ def download_auction_data(api_key, realm='thrall'):
     dm = download.DownloadManager()
     for batch in client.get_auction_data_status(realm):
         dest_dir = dest_dir_for(batch.last_modified)
+        print "Destination directory:", dest_dir
         if not os.access(dest_dir, os.F_OK):
             os.makedirs(dest_dir)
         dm.download(dest_dir, batch.url)
@@ -70,6 +72,16 @@ def main(realm='thrall', sleep_secs=300, n=None):
         print "done."
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description='Download WoW auction data')
+    parser.add_argument('-n','--num-cycles', type=int, dest='n', default=None,
+                        help='number of polling cycles to run (default: run forever)')
+    parser.add_argument('-r','--realm', dest='realm', default='thrall',
+                        help='realm name to pull data from')
+    parser.add_argument('-s','--sleep-secs', type=int, dest='sleep_secs',
+                        help='number of seconds to wait between poll cycles',
+                        default=300)
+    args = parser.parse_args()
+    main(args.realm, args.sleep_secs, args.n)
+
 
     

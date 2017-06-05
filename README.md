@@ -1,3 +1,8 @@
 # Installing dependencies
 
-```pip install -r requirements.txt```
+## Local libraries
+* ```brew install yajl```
+* ```brew install mysql```
+
+## Python deps
+* ```pip install -r requirements.txt```
