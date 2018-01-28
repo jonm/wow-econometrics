@@ -1,4 +1,4 @@
-# Copyright (C) 2017 Jonathan Moore
+# Copyright (C) 2017, 2018 Jonathan Moore
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,6 +16,7 @@
 import datetime
 import json
 import logging
+import time
 
 import requests
 
@@ -23,6 +24,11 @@ class AuctionDataBatch:
     def __init__(self, url, last_modified):
         self.url = url
         self.last_modified = last_modified
+
+    def __repr__(self):
+        return "AuctionDataBatch(url=%s, last_modified=%s)" % (self.url.__repr__(),
+                                                               self.last_modified.__repr__())
+         
 
 class ItemInfo:
     def __init__(self, item_id, name = None, description = None,
@@ -52,15 +58,26 @@ class WoWCommunityAPIClient:
     def get_auction_data_status(self, realm, locale='en_US'):
         uri = "%s/wow/auction/data/%s?locale=%s&apikey=%s" % \
             (self._endpoint, realm, locale, self._api_key)
+
+        start = time.time()
+        logging.info("Fetching %s..." % uri)
         resp = requests.get(uri)
+        end = time.time()
+        logging.info("Fetch of %s complete (%ld ms)" % \
+                            (uri, long((end - start) * 1000.0)))
+        
         resp.raise_for_status()
         body = resp.json()
         if 'files' not in body:
-            raise ValueError("unexpected JSON body: %s" % json.dumps(body))
+            msg = "unexpected JSON body: %s" % json.dumps(body)
+            logging.error(msg)
+            raise ValueError(msg)
         out = []
         for obj in body['files']:
             if 'url' not in obj or 'lastModified' not in obj:
-                raise ValueError("unexpected JSON object: %s" % json.dumps(obj))
+                msg = "unexpected JSON object: %s" % json.dumps(obj)
+                logging.error(msg)
+                raise ValueError(msg)
             lm = datetime.datetime.fromtimestamp(obj['lastModified'] / 1e3)
             out.append(AuctionDataBatch(obj['url'], lm))
         return out
