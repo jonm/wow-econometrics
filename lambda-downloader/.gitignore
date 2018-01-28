@@ -1,0 +1,17 @@
+# Ignore vendored Python dependencies
+*.dist-info/
+boto3/
+botocore/
+certifi/
+chardet/
+concurrent/
+dateutil/
+docutils/
+idna/
+jmespath/
+requests/
+s3transfer/
+six.py
+six.pyc
+urllib3/
+*.zip
