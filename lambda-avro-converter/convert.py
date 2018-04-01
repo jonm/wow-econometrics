@@ -7,6 +7,7 @@ from avro.datafile import DataFileWriter
 from avro.io import DatumWriter
 import boto
 from boto.s3.key import Key
+import boto3
 import ijson
 
 def convert_object(auc):
@@ -75,4 +76,34 @@ def convert_s3_obj(src_bucket, src_key, dst_bucket, dst_key=None):
     k_out.set_contents_from_file(local_out_f)
     print "done."
     local_out_f.close()
-    
+
+def convert_all_s3(src_bucket, dst_bucket):
+    client = boto3.client('s3')
+    done = False
+    marker = None
+    while not done:
+        if marker is None:
+            resp = client.list_objects(Bucket=src_bucket)
+        else:
+            resp = client.list_objects(Bucket=src_bucket, Marker=marker)
+        if resp['IsTruncated']:
+            done = True
+        else:
+            marker = resp['NextMarker']
+
+        for k_in in resp['Contents']:
+            do_copy = True
+            try:
+                k_out = client.get_object(Bucket=dst_bucket,
+                                          Key=k_in['Key'])
+                k_out.load()
+                if (k_out.last_modified is not None
+                    and k_out.last_modified > k_in['LastModified']):
+                    do_copy = False
+            except:
+                pass
+            if do_copy:
+                logging.info("Converting %s" % (k_in['Key'],))
+                convert_s3_obj(src_bucket, k_in['Key'], dst_bucket)
+
+
