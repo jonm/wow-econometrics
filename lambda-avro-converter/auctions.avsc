@@ -1,0 +1,43 @@
+{
+    "namespace": "com.github.jonm.wow-econometrics",
+    "type": "record",
+    "name": "Auction",
+    "fields": [
+	{ "name": "rand", "type": "int" },
+	{ "name": "auction_id", "type": "long" },
+	{ "name": "time_left",
+	  "type": {
+	      "type": "enum",
+	      "name": "AuctionTimeLeft",
+	      "symbols": ["SHORT", "MEDIUM", "VERY_LONG", "LONG"]
+	  }
+	},
+	{ "name": "bid", "type": "long" },
+	{ "name": "item_id", "type": "long" },
+	{ "name": "seed", "type": "long" },
+	{ "name": "owner_realm", "type": "string" },
+	{ "name": "context", "type": "int" },
+	{ "name": "owner", "type": "string" },
+	{ "name": "buyout", "type": "long" },
+	{ "name": "quantity", "type": "int" },
+	{ "name": "modifiers",
+	  "type": [ "null",
+		    {
+			"type":"array",
+			"items": { "type": "record", "name" : "Modifier",
+				   "fields": [ { "name": "type",
+						 "type": "int" },
+					       { "name": "value",
+						 "type": "long" } ]
+				 }
+		    }
+		  ]
+	},
+	{ "name": "bonus_lists",
+	  "type": ["null", { "type": "array", "items": "int" } ] },
+	{ "name": "pet_quality_id", "type" : ["null", "int" ] },
+	{ "name": "pet_breed_id", "type" : ["null", "int" ] },
+	{ "name": "pet_species_id", "type" : ["null", "int" ] },
+	{ "name": "pet_level", "type" : ["null", "int"] }
+    ]
+}
