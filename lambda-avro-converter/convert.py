@@ -96,7 +96,6 @@ def convert_all_s3(src_bucket, dst_bucket):
             try:
                 k_out = client.get_object(Bucket=dst_bucket,
                                           Key=k_in['Key'])
-                k_out.load()
                 if (k_out['LastModified'] > k_in['LastModified']):
                     do_copy = False
             except:
