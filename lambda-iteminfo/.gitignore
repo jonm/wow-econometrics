@@ -1,0 +1,15 @@
+*.dist-info/
+boto3
+botocore
+certifi
+chardet
+concurrent
+dateutil
+docutils
+idna
+jmespath
+requests
+s3transfer
+urllib3
+six.py
+lambda-iteminfo.zip
