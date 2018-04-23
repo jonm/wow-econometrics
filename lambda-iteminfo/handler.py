@@ -16,6 +16,7 @@
 import json
 import logging
 import os
+import urllib
 
 import itemcache
 import iteminfo
@@ -29,6 +30,7 @@ def _get_config():
 
 def prefetch(key, config=None):
     if config is None: config = _get_config()
+    logging.warn("Prefetching key %s" % (key,))
     wow_client = wow.WoWCommunityAPIClient(config['WOW_API_KEY'])
     cache = itemcache.ItemInfoCache(config['TABLE_NAME'])
     caching_client = itemcache.CachingWoWCommunityAPIClient(wow_client, cache)
@@ -42,5 +44,6 @@ def handle(event, context):
         msg = sns_record['Sns']['Message']
         s3_event = json.loads(msg)
         for record in s3_event['Records']:
-            prefetch(record['s3']['object']['key'])
+            prefetch(urllib.unquote(record['s3']['object']['key']))
+
 
