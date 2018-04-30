@@ -78,13 +78,10 @@ class ItemInfoCache:
         key = self._get_iteminfo_id(item_id, context, bonus_lists)
         item = None
 
-        try:
-            resp = self._table.get_item(Key = { 'iteminfo_id' : key })
-            if resp is None or 'Item' not in resp:
-                return None
-            item = resp['Item']
-        except ResourceNotFoundException:
+        resp = self._table.get_item(Key = { 'iteminfo_id' : key })
+        if resp is None or 'Item' not in resp:
             return None
+        item = resp['Item']
         
         if self._is_fresh(item):
             try:
