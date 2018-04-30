@@ -43,16 +43,19 @@ def handle(event, context):
         for record in s3_event['Records']:
             summarize_batch(urllib.unquote(record['s3']['object']['key']))
 
+def republish_event(key, topic):
+    event = { 'Records' :
+                  [ { 's3' : 
+                      { 'object' : 
+                        { 'key' : urllib.quote(key) } } } ] }
+    topic.publish(Message = json.dumps(event))
+    logging.warn("Published event for key %s" % (key,))
+    
+
 def republish_events(src_bucket, sns_topic_arn):
     s3 = boto3.resource('s3')
     bucket = s3.Bucket(src_bucket)
     sns = boto3.resource('sns')
     topic = sns.Topic(sns_topic_arn)
     for obj in bucket.objects.all():
-        event = { 'Records' :
-                      [ { 's3' : 
-                          { 'object' : 
-                            { 'key' : urllib.quote(obj.key) } } } ] }
-        topic.publish(Message = json.dumps(event))
-        logging.warn("Published event for key %s" % (obj.key,))
-
+        republish_event(obj.key, topic)

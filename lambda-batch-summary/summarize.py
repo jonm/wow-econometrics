@@ -52,10 +52,15 @@ def summarize(batch):
                                'min_buyout' : None,
                                'total_volume' : 0 }
 
+        qty = 1
+        if 'quantity' in auc: qty = auc['quantity']
+
         if 'buyout' in auc:
-            if items[item_id]['min_buyout'] is None or auc['buyout'] < items[item_id]['min_buyout']:
-                items[item_id]['min_buyout'] = auc['buyout']
-        items[item_id]['total_volume'] += auc['quantity']
+            unit_price = int(auc['buyout'] * 1.0 / qty)
+            if items[item_id]['min_buyout'] is None or unit_price < items[item_id]['min_buyout']:
+                items[item_id]['min_buyout'] = unit_price
+
+        items[item_id]['total_volume'] += qty
     return items
 
 def write_summary(bucket, key, summary, s3=None):
