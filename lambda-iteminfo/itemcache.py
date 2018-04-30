@@ -97,12 +97,9 @@ class ItemInfoCache:
         body = json.dumps(info, separators=(',',':'), sort_keys=True)
 
         item = None
-        try:
-            resp = self._table.get_item(Key = { 'iteminfo_id' : key })
-            if resp is not None and 'Item' in resp:
-                item = resp['Item']
-        except ResourceNotFoundException:
-            pass
+        resp = self._table.get_item(Key = { 'iteminfo_id' : key })
+        if resp is not None and 'Item' in resp:
+            item = resp['Item']
 
         if item is not None and item['body'] == body:
             item['date'] = now.isoformat()
