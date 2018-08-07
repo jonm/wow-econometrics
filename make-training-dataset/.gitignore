@@ -9,3 +9,5 @@ pytz/
 s3transfer/
 six.py
 training.zip
+humanfriendly/
+monotonic.py

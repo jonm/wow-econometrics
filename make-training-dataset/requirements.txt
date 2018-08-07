@@ -1,2 +1,4 @@
 boto3==1.7.24
 pytz==2018.4
+humanfriendly==4.16.1
+
