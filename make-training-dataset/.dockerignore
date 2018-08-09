@@ -1,0 +1,16 @@
+*.dist-info
+boto3/
+botocore/
+concurrent/
+dateutil/
+docutils/
+jmespath/
+pytz/
+s3transfer/
+six.py
+training.zip
+humanfriendly/
+monotonic.py
+*.pyc
+*~
+test_*.py
