@@ -11,3 +11,4 @@ six.py
 training.zip
 humanfriendly/
 monotonic.py
+*.whl

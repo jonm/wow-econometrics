@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
 import os
 
 import dateutil.parser
@@ -41,4 +42,10 @@ def main():
                                     latest, realm)
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        logging.critical("Uncaught exception", exc_info=True)
+        raise e
+
+        
