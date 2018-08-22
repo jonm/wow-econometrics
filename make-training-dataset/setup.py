@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 setup(
     name="wowecon_make_training_dataset",
-    version="0.1.0",
+    version="0.1.1",
     namespace_packages=['wowecon'],
     packages=['wowecon','wowecon.training'],
     scripts=['make_training_dataset.py'],

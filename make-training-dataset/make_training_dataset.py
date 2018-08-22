@@ -17,12 +17,34 @@
 
 import logging
 import os
+import tempfile
 
 import dateutil.parser
 
-import training
+from wowecon import training
 
+def _configure_logging():
+    loglevel_str = os.environ.get('LOG_LEVEL','logging.INFO')
+    if not loglevel_str.startswith('logging.'):
+        raise ValueError("Invalid logging level: %s" % (loglevel_str,))
+    loglevel = eval(loglevel_str)
+
+    fmt = '%(asctime)s %(levelname)-8s %(message)s'
+    formatter = logging.Formatter(fmt)
+    
+    logfile = os.environ.get('LOG_TO')
+    if logfile is not None:
+        logging.basicConfig(filename=logfile, format=fmt, level=loglevel)
+
+        console = logging.StreamHandler()
+        console.setLevel(loglevel)
+        console.setFormatter(formatter)
+        logging.getLogger('').addhandler(console)
+    else:
+        logging.basicConfig(format=fmt, level=loglevel)
+        
 def main():
+    _configure_logging()
     global_table_name = os.environ['GLOBAL_TABLE_NAME']
     index_table_name = os.environ['INDEX_TABLE_NAME']
     src_bucket_name = os.environ['SRC_BUCKET_NAME']
