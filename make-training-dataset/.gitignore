@@ -12,3 +12,4 @@ training.zip
 humanfriendly/
 monotonic.py
 *.whl
+ec2-userdata.sh

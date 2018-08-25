@@ -21,7 +21,7 @@ import tempfile
 
 import dateutil.parser
 
-from wowecon import training
+from wowecon.training import training
 
 def _configure_logging():
     loglevel_str = os.environ.get('LOG_LEVEL','logging.INFO')
@@ -39,7 +39,7 @@ def _configure_logging():
         console = logging.StreamHandler()
         console.setLevel(loglevel)
         console.setFormatter(formatter)
-        logging.getLogger('').addhandler(console)
+        logging.getLogger('').addHandler(console)
     else:
         logging.basicConfig(format=fmt, level=loglevel)
         
@@ -48,6 +48,7 @@ def main():
     global_table_name = os.environ['GLOBAL_TABLE_NAME']
     index_table_name = os.environ['INDEX_TABLE_NAME']
     src_bucket_name = os.environ['SRC_BUCKET_NAME']
+    dst_bucket_name = os.environ['DST_BUCKET_NAME']
 
     earliest = os.environ.get('EARLIEST_DATASET',None)
     if earliest is not None:
@@ -60,8 +61,8 @@ def main():
     realm = os.environ.get('REALM','thrall')
 
     training.generate_training_data(global_table_name, index_table_name,
-                                    src_bucket_name, earliest,
-                                    latest, realm)
+                                    src_bucket_name, dst_bucket_name,
+                                    earliest, latest, realm)
 
 if __name__ == "__main__":
     try:
