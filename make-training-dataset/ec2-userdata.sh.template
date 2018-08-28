@@ -1,0 +1,27 @@
+#!/bin/bash
+MTD_VERSION=%MTD_VERSION%
+
+# install updates
+sudo yum update -y
+sudo aws configure set region us-east-1
+
+# install dataset generation script
+sudo mkdir -p /var/log/wowecon
+aws s3 cp s3://wowecon-artifacts/make_training_dataset/wowecon_make_training_dataset-${MTD_VERSION}-py2.7-none-any.whl .
+sudo pip install ./wowecon_make_training_dataset-${MTD_VERSION}-py2.7-none-any.whl
+
+# install and configure CloudWatch Logs Agent
+sudo yum install -y awslogs
+curl https://s3.amazonaws.com//aws-cloudwatch/downloads/latest/awslogs-agent-setup.py -O
+chmod +x ./awslogs-agent-setup.py
+sudo ./awslogs-agent-setup.py -n -r us-east-1 -c s3://wowecon-config/make-training-dataset/awslogs.conf
+
+# generate dataset
+export LOG_TO=/var/log/wowecon/make_training_dataset
+export GLOBAL_TABLE_NAME=%GLOBAL_TABLE_NAME%
+export INDEX_TABLE_NAME=%INDEX_TABLE_NAME%
+export SRC_BUCKET_NAME=%SRC_BUCKET_NAME%
+export DST_BUCKET_NAME=%DST_BUCKET_NAME%
+export EARLIEST_DATASET=%EARLIEST_DATASET%
+export LATEST_DATASET=%LATEST_DATASET%
+sudo -E python /usr/local/lib/python2.7/site-packages/wowecon_make_training_dataset-${MTD_VERSION}.dist-info/scripts/make_training_dataset.py
