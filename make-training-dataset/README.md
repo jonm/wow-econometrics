@@ -22,6 +22,8 @@ Populate the following environment variables:
 * `DST_BUCKET_NAME`
 * `EARLIEST_DATASET`
 * `LATEST_DATASET`
+and optionally:
+* `FILECACHE_SIZE` (if not set, no filesystem cache will be used)
 
 Then generate the instance userdata script via:
 ```

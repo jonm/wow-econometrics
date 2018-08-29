@@ -43,6 +43,11 @@ if [ -z "$LATEST_DATASET" ]; then
     echo "Please set the LATEST_DATASET environment variable."
     exit 1
 fi
+if [ -z "$FILECACHE_SIZE" ]; then
+    FC=
+else
+    FC="export FILECACHE_SIZE=$FILECACHE_SIZE"
+fi
 
 cat ec2-userdata.sh.template | \
     sed -e "s/%MTD_VERSION%/$MTD_VERSION/g" | \
@@ -51,5 +56,6 @@ cat ec2-userdata.sh.template | \
     sed -e "s/%SRC_BUCKET_NAME%/$SRC_BUCKET_NAME/g" | \
     sed -e "s/%DST_BUCKET_NAME%/$DST_BUCKET_NAME/g" | \
     sed -e "s/%EARLIEST_DATASET%/$EARLIEST_DATASET/g" | \
-    sed -e "s/%LATEST_DATASET%/$LATEST_DATASET/g" \
+    sed -e "s/%LATEST_DATASET%/$LATEST_DATASET/g" | \
+    sed -e "s/%FILECACHE_SIZE%/$FC/g" \
 	> ec2-userdata.sh
