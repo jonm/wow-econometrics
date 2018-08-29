@@ -39,13 +39,10 @@ def generate_training_data(global_table_name, index_table_name,
     tm = TransferManager(s3)
     extra_args = { 'ACL' : 'private',
                    'ContentType' : 'text/csv' }
-    
-    generator = generators.gen_all_observations(global_table_name,
-                                                index_table_name,
-                                                src_bucket_name,
-                                                earliest,
-                                                latest,
-                                                realm)
+
+    g = generators.Generator(global_table_name, index_table_name,
+                             src_bucket_name, realm)
+    generator = g.gen_all_observations(earliest, latest)
     stream = streaming.StreamingSource(line_generator(generator))
 
     start = datetime.datetime.now(pytz.utc)
