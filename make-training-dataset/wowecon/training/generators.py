@@ -39,11 +39,12 @@ def _gzip_decompress(f):
 class Generator:
     def __init__(self, global_table_name, index_table_name,
                  src_bucket_name,
-                 realm='thrall'):
+                 realm='thrall', filecache=None):
         self._global_table_name = global_table_name
         self._index_table_name = index_table_name
         self._src_bucket_name = src_bucket_name
         self._realm = realm
+        self._filecache = filecache
     
     def get_earliest_dataset(self):
         ddb = boto3.resource('dynamodb')
@@ -77,14 +78,26 @@ class Generator:
                     yield dataset
 
     def load_summary(self, dataset):
+        if self._filecache is not None:
+            cache_f = self._filecache.get(dataset)
+            if cache_f is not None:
+                with cache_f as f:
+                    return json.load(f)
+        
         s3 = boto3.resource('s3')
         obj = s3.Object(self._src_bucket_name,
                         "%s/%s" % (self._realm, dataset))
         resp = obj.get()
         f = resp['Body']
         if 'ContentEncoding' in resp and resp['ContentEncoding'] == 'gzip':
-            return json.loads(_gzip_decompress(f))
-        return json.load(f)
+            out = json.loads(_gzip_decompress(f))
+        else:
+            out = json.load(f)
+
+        if self._filecache is not None:
+            self._filecache.put(dataset, json.dumps(out))
+
+        return out
 
     def get_training_data_columns(self):
         return ('item_id', 'year1', 'month1', 'day1', 'weekday1',

@@ -22,6 +22,7 @@ import tempfile
 import dateutil.parser
 
 from wowecon.training import training
+from wowecon.training import filecache
 
 def _configure_logging():
     loglevel_str = os.environ.get('LOG_LEVEL','logging.INFO')
@@ -50,6 +51,11 @@ def main():
     src_bucket_name = os.environ['SRC_BUCKET_NAME']
     dst_bucket_name = os.environ['DST_BUCKET_NAME']
 
+    cache = None
+    cache_size = os.environ.get('FILECACHE_SIZE',None)
+    if cache_size is not None:
+        cache = filecache.FileCache(hmax_size=cache_size)
+    
     earliest = os.environ.get('EARLIEST_DATASET',None)
     if earliest is not None:
         earliest = dateutil.parser.parse(earliest)
@@ -60,9 +66,15 @@ def main():
         
     realm = os.environ.get('REALM','thrall')
 
-    training.generate_training_data(global_table_name, index_table_name,
-                                    src_bucket_name, dst_bucket_name,
-                                    earliest, latest, realm)
+    if cache is None:
+        training.generate_training_data(global_table_name, index_table_name,
+                                        src_bucket_name, dst_bucket_name,
+                                        earliest, latest, realm, cache)
+    else:
+        with cache as c:
+            training.generate_training_data(global_table_name, index_table_name,
+                                            src_bucket_name, dst_bucket_name,
+                                            earliest, latest, realm, c)
 
 if __name__ == "__main__":
     try:
