@@ -48,6 +48,11 @@ if [ -z "$FILECACHE_SIZE" ]; then
 else
     FC="export FILECACHE_SIZE=$FILECACHE_SIZE"
 fi
+if [ -z "$MEMCACHE_SIZE" ]; then
+    MC=
+else
+    MC="export MEMCACHE_SIZE=$MEMCACHE_SIZE"
+fi
 
 cat ec2-userdata.sh.template | \
     sed -e "s/%MTD_VERSION%/$MTD_VERSION/g" | \
@@ -57,5 +62,6 @@ cat ec2-userdata.sh.template | \
     sed -e "s/%DST_BUCKET_NAME%/$DST_BUCKET_NAME/g" | \
     sed -e "s/%EARLIEST_DATASET%/$EARLIEST_DATASET/g" | \
     sed -e "s/%LATEST_DATASET%/$LATEST_DATASET/g" | \
-    sed -e "s/%FILECACHE_SIZE%/$FC/g" \
+    sed -e "s/%FILECACHE_SIZE%/$FC/g" | \
+    sed -e "s/%MEMCACHE_SIZE%/$MC/g" \
 	> ec2-userdata.sh

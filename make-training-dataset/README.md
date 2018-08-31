@@ -5,6 +5,7 @@ This generates a CSV dataset to be used for machine learning.
 ## Building an egg and wheel file
 
 ```
+$ rm -fr dist *.whl
 $ python setup.py bdist_egg
 $ wheel convert dist/*.egg
 $ for f in *.whl; do
@@ -24,6 +25,7 @@ Populate the following environment variables:
 * `LATEST_DATASET`
 and optionally:
 * `FILECACHE_SIZE` (if not set, no filesystem cache will be used)
+* `MEMCACHE_SIZE` (if not set, no extra in-memory caching will be used)
 
 Then generate the instance userdata script via:
 ```

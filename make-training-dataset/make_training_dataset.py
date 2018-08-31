@@ -21,8 +21,9 @@ import tempfile
 
 import dateutil.parser
 
-from wowecon.training import training
 from wowecon.training import filecache
+from wowecon.training import memcache
+from wowecon.training import training
 
 def _configure_logging():
     loglevel_str = os.environ.get('LOG_LEVEL','logging.INFO')
@@ -51,11 +52,16 @@ def main():
     src_bucket_name = os.environ['SRC_BUCKET_NAME']
     dst_bucket_name = os.environ['DST_BUCKET_NAME']
 
-    cache = None
-    cache_size = os.environ.get('FILECACHE_SIZE',None)
-    if cache_size is not None:
-        cache = filecache.FileCache(hmax_size=cache_size)
-    
+    fcache = None
+    fcache_size = os.environ.get('FILECACHE_SIZE',None)
+    if fcache_size is not None:
+        fcache = filecache.FileCache(hmax_size=fcache_size)
+
+    mcache = None
+    mcache_size = os.environ.get('MEMCACHE_SIZE',None)
+    if mcache_size is not None:
+        mcache = memcache.MemoryCache(hmax_size=mcache_size)
+        
     earliest = os.environ.get('EARLIEST_DATASET',None)
     if earliest is not None:
         earliest = dateutil.parser.parse(earliest)
@@ -66,15 +72,17 @@ def main():
         
     realm = os.environ.get('REALM','thrall')
 
-    if cache is None:
+    if fcache is None:
         training.generate_training_data(global_table_name, index_table_name,
                                         src_bucket_name, dst_bucket_name,
-                                        earliest, latest, realm, cache)
+                                        earliest, latest,
+                                        realm, fcache, mcache)
     else:
-        with cache as c:
+        with fcache as fc:
             training.generate_training_data(global_table_name, index_table_name,
                                             src_bucket_name, dst_bucket_name,
-                                            earliest, latest, realm, c)
+                                            earliest, latest, realm,
+                                            fc, mcache)
 
 if __name__ == "__main__":
     try:

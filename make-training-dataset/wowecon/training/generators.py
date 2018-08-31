@@ -39,12 +39,13 @@ def _gzip_decompress(f):
 class Generator:
     def __init__(self, global_table_name, index_table_name,
                  src_bucket_name,
-                 realm='thrall', filecache=None):
+                 realm='thrall', filecache=None, memcache=None):
         self._global_table_name = global_table_name
         self._index_table_name = index_table_name
         self._src_bucket_name = src_bucket_name
         self._realm = realm
         self._filecache = filecache
+        self._memcache = memcache
     
     def get_earliest_dataset(self):
         ddb = boto3.resource('dynamodb')
@@ -78,11 +79,19 @@ class Generator:
                     yield dataset
 
     def load_summary(self, dataset):
+        if self._memcache is not None:
+            out = self._memcache.get(dataset)
+            if out is not None:
+                logging.info("MEM : %s (hit)" % (dataset,))
+                return out
+        
         if self._filecache is not None:
             cache_f = self._filecache.get(dataset)
             if cache_f is not None:
                 with cache_f as f:
-                    return json.load(f)
+                    out = json.load(f)
+                    logging.info("FS  : %s (hit)" % (dataset,))
+                    return out
         
         s3 = boto3.resource('s3')
         obj = s3.Object(self._src_bucket_name,
@@ -93,9 +102,12 @@ class Generator:
             out = json.loads(_gzip_decompress(f))
         else:
             out = json.load(f)
-
+        logging.info("BOTH: %s (miss)" % (dataset,))
+            
         if self._filecache is not None:
             self._filecache.put(dataset, json.dumps(out))
+        if self._memcache is not None:
+            self._memcache.put(dataset, out)
 
         return out
 

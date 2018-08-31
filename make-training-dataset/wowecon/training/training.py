@@ -35,14 +35,14 @@ def line_generator(tuple_generator):
 def generate_training_data(global_table_name, index_table_name,
                            src_bucket_name, dst_bucket_name,
                            earliest=None, latest=None, realm='thrall',
-                           filecache=None):
+                           filecache=None, memcache=None):
     s3 = boto3.client('s3')
     tm = TransferManager(s3)
     extra_args = { 'ACL' : 'private',
                    'ContentType' : 'text/csv' }
 
     g = generators.Generator(global_table_name, index_table_name,
-                             src_bucket_name, realm, filecache)
+                             src_bucket_name, realm, filecache, memcache)
     generator = g.gen_all_observations(earliest, latest)
     stream = streaming.StreamingSource(line_generator(generator))
 
