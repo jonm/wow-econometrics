@@ -1,0 +1,13 @@
+ec2-userdata.sh.template
+*.dist-info/
+boto3/
+botocore/
+concurrent/
+dateutil/
+docutils/
+jmespath/
+pytz/
+s3transfer/
+urllib3/
+six.py
+lambda-launcher.zip
