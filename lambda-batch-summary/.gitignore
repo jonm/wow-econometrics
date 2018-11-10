@@ -13,3 +13,4 @@ s3transfer
 urllib3
 six.py
 lambda-batch-summary.zip
+.dep

@@ -85,13 +85,19 @@ def _up_to_date(key, context, config=None):
         return False
 
     src_lm = src_obj.last_modified
-    fn_lm = _fn_last_modified(context)
-
-    logging.debug("dst_lm:%s src_lm:%s fn_lm:%s" %
-                  (dst_lm.isoformat(), src_lm.isoformat(),
-                   fn_lm.isoformat()))
-    return (dst_lm > _fn_last_modified(context)
-            and dst_lm > src_obj.last_modified)
+    logging.debug("dst_lm:%s src_lm:%s" %
+                  (dst_lm.isoformat(), src_lm.isoformat()))
+    if src_lm >= dst_lm: return False
+    
+    try:
+        fn_lm = _fn_last_modified(context)
+    except:
+        logging.warn("_fn_last_modified", exc_info=True)
+        return False
+    
+    logging.debug("dst_lm:%s fn_lm:%s" %
+                  (dst_lm.isoformat(), fn_lm.isoformat()))
+    return (dst_lm > fn_lm)
 
 def handle(event, context):
     logging.warn("Event: %s" % (json.dumps(event, indent=4),))
