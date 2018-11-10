@@ -55,7 +55,7 @@ def summarize(batch):
         qty = 1
         if 'quantity' in auc: qty = auc['quantity']
 
-        if 'buyout' in auc:
+        if 'buyout' in auc and auc['buyout'] > 0:
             unit_price = int(auc['buyout'] * 1.0 / qty)
             if items[item_id]['min_buyout'] is None or unit_price < items[item_id]['min_buyout']:
                 items[item_id]['min_buyout'] = unit_price
