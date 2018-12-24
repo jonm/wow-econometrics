@@ -15,3 +15,4 @@ six.py
 six.pyc
 urllib3/
 *.zip
+.dep
