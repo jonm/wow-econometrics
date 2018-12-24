@@ -19,6 +19,7 @@ import logging
 import time
 
 import requests
+from requests.auth import HTTPBasicAuth
 
 class AuctionDataBatch:
     def __init__(self, url, last_modified):
@@ -51,17 +52,45 @@ class ItemInfo:
                  
 
 class WoWCommunityAPIClient:
-    def __init__(self, api_key, endpoint='https://us.api.battle.net'):
-        self._api_key = api_key
+    def __init__(self, client_id, client_secret, endpoint='https://us.api.blizzard.com', oauth_endpoint='https://us.battle.net'):
+        self._client_id = client_id
+        self._client_secret = client_secret
         self._endpoint = endpoint
+        self._oauth_endpoint = oauth_endpoint
+        self._access_token = None
+        self._token_expires = None
+
+    def _get_access_token(self):
+        if (self._access_token is not None
+            and self._token_expires is not None
+            and time.time() + 3600.0 < self._token_expires):
+            return self._access_token
+
+        resp = requests.post("%s/oauth/token" % (self._oauth_endpoint,),
+                             auth = HTTPBasicAuth(self._client_id,
+                                                  self._client_secret),
+                             data = { 'grant_type' : 'client_credentials' })
+        resp.raise_for_status()
+        body = resp.json()
+        if ('access_token' not in body
+            or 'token_type' not in body or body['token_type'] != 'bearer'
+            or 'expires_in' not in body):
+            msg = "unexpected JSON body: %s" % json.dumps(body)
+            logging.error(msg)
+            raise ValueError(msg)
+        self._access_token = body['access_token']
+        self._token_expires = time.time() + body['expires_in']
+        return self._access_token
 
     def get_auction_data_status(self, realm, locale='en_US'):
-        uri = "%s/wow/auction/data/%s?locale=%s&apikey=%s" % \
-            (self._endpoint, realm, locale, self._api_key)
+        uri = "%s/wow/auction/data/%s?locale=%s" % \
+            (self._endpoint, realm, locale)
+        headers = { 'Authorization' :
+                    "Bearer %s" % (self._get_access_token(),) }
 
         start = time.time()
         logging.info("Fetching %s..." % uri)
-        resp = requests.get(uri)
+        resp = requests.get(uri, headers = headers)
         end = time.time()
         logging.info("Fetch of %s complete (%ld ms)" % \
                             (uri, long((end - start) * 1000.0)))
@@ -83,9 +112,12 @@ class WoWCommunityAPIClient:
         return out
 
     def get_item_info(self, item_id, locale='en_US'):
-        uri = "%s/wow/item/%d?locale=%s&apikey=%s" % \
-            (self._endpoint, item_id, locale, self._api_key)
-        resp = requests.get(uri)
+        uri = "%s/wow/item/%d?locale=%s" % \
+            (self._endpoint, item_id, locale)
+        headers = { 'Authorization' :
+                    "Bearer %s" % (self._get_access_token(),) }
+
+        resp = requests.get(uri, headers = headers)
         resp.raise_for_status()
         body = resp.json()
         if 'id' not in body:

@@ -25,7 +25,8 @@ def _get_configuration():
     config = {}
     config['wow_api_endpoint'] = os.getenv('WOW_API_ENDPOINT',
                                            'https://us.api.battle.net')
-    config['wow_api_key'] = os.environ['WOW_API_KEY']
+    config['wow_client_id'] = os.environ['WOW_CLIENT_ID']
+    config['wow_client_secret'] = os.environ['WOW_CLIENT_SECRET']
     config['wow_realm'] = os.getenv('WOW_REALM','thrall')
     config['wow_locale'] = os.getenv('WOW_LOCALE','en_US')
     config['aws_region'] = os.getenv('AWS_REGION','us-east-1')
@@ -37,8 +38,9 @@ def _keyname_from_datetime(config, dt):
 
 def download_handler(event, context):
     config = _get_configuration()
-    wowc = battlenet.WoWCommunityAPIClient(config['wow_api_key'],
-                                           config['wow_api_endpoint'])
+    wowc = battlenet.WoWCommunityAPIClient(config['wow_client_id'],
+                                           config['wow_client_secret'],
+                                           endpoint=config['wow_api_endpoint'])
     for batch in wowc.get_auction_data_status(config['wow_realm'],
                                               config['wow_locale']):
         s3key = _keyname_from_datetime(config, batch.last_modified)
