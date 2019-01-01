@@ -10,12 +10,12 @@ lambda-downloader.zip: .dep handler.py battlenet.py downloader.py
 	zip -r lambda-batch-summary.zip . -x \.* -x \*~ -x Makefile
 
 clean:
-	rm *.pyc lambda-batch-summary.zip
+	rm -f *.pyc lambda-batch-summary.zip *~
 
 distclean: clean
 	rm -fr bin *.dist-info boto3 botocore certifi chardet concurrent
 	rm -fr dateutil docutils idna jmespath requests s3transfer
 	rm -fr six.py urllib3
-	rm .dep
+	rm -f .dep
 
 depend: .dep
