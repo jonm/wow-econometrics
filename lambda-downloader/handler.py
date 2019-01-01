@@ -24,7 +24,7 @@ logging.getLogger().setLevel(logging.INFO)
 def _get_configuration():
     config = {}
     config['wow_api_endpoint'] = os.getenv('WOW_API_ENDPOINT',
-                                           'https://us.api.battle.net')
+                                           'https://us.api.blizzard.com')
     config['wow_client_id'] = os.environ['WOW_CLIENT_ID']
     config['wow_client_secret'] = os.environ['WOW_CLIENT_SECRET']
     config['wow_realm'] = os.getenv('WOW_REALM','thrall')
