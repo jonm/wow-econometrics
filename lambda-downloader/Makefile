@@ -6,11 +6,11 @@ all: lambda-downloader.zip
 
 lambda-downloader.zip: .dep handler.py battlenet.py downloader.py
 	python -m compileall .
-	rm -f lambda-batch-summary.zip
-	zip -r lambda-batch-summary.zip . -x \.* -x \*~ -x Makefile
+	rm -f lambda-downloader.zip
+	zip -r lambda-downloader.zip . -x \.* -x \*~ -x Makefile
 
 clean:
-	rm -f *.pyc lambda-batch-summary.zip *~
+	rm -f *.pyc lambda-downloader.zip *~
 
 distclean: clean
 	rm -fr bin *.dist-info boto3 botocore certifi chardet concurrent
